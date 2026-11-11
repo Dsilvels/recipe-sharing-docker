@@ -5,18 +5,38 @@ const db = require('../database');
 describe('Recipe API Tests', () => {
   let server;
 
-beforeAll(async () => {
-  // Wait until the database has finished adding sample recipes
-  await new Promise((resolve, reject) => {
-    db.get('SELECT COUNT(*) AS count FROM recipes', (err) => {
-      if (err) reject(err);
-      else resolve();
+
+  beforeAll(async () => {
+    // Wait for the database to be ready
+    await new Promise((resolve, reject) => {
+      db.get('SELECT COUNT(*) AS count FROM recipes', (err) => {
+        if (err) reject(err);
+        else resolve();
+      });
+    });
+
+    // Start the test server
+    server = app.listen(5001);
+  });
+
+  afterAll(async () => {
+    // Close the test server
+    await new Promise((resolve, reject) => {
+      server.close((err) => {
+        if (err) reject(err);
+        else resolve();
+      });
+    });
+
+    // Close the database connection
+    await new Promise((resolve, reject) => {
+      db.close((err) => {
+        if (err) reject(err);
+        else resolve();
+      });
     });
   });
 
-  // Start the test server
-  server = app.listen(5001);
-});  
 
 
 
